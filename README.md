@@ -10,15 +10,7 @@ Note: These are all great small businesses and I highly recommend trying their p
 
 Prereqs to run:
 - Python 3.7+
-- selenium (
-```
-pip3 install selenium
-```
-)
+- selenium (`pip3 install selenium`)
 - a chromedriver installed in your home directory (I used [this one](https://chromedriver.storage.googleapis.com/index.html?path=80.0.3987.106/))
 
-Then just run 
-```
-bash python3 drinks.py
-```
-and you're off!
+Then just run `python3 drinks.py` and you're off!
