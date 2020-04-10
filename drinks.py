@@ -25,14 +25,14 @@ class Drink():
         results = zip(names, rates)
         rankings = sorted(results, key = lambda ranking: ranking[1], reverse=True)
 
-        with open(self.home + '/' + filename + '.csv', 'w+') as excelFile:
+        with open(filename + '.csv', 'w+') as excelFile:
             excelFile.write('Name,mL/$\n')
 
             for name, rate in rankings:
                 excelFile.write('%s,' % name)
                 excelFile.write('%f\n' % rate)
 
-        os.system('open ~/' + filename + '.csv')
+        os.system('open ' + filename + '.csv')
 
     def run(self):
         driver = webdriver.Chrome(self.home + '/chromedriver')
