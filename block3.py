@@ -1,36 +1,35 @@
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
 import time
+from tools import ScrapeTools
 
 class Block3():
 
     def scrape(self, driver):
         driver.get('https://blockthreebottleshop.com')
-        time.sleep(2)
 
-        birthYear = Select(driver.find_element_by_id('bouncer_datepicker_year'))
+        birthYear = Select(ScrapeTools.safeFind(driver.find_element_by_id, 'bouncer_datepicker_year'))
         birthYear.select_by_index(20)
 
-        submit = driver.find_element_by_id('bouncer_modal_submit')
-        submit.click()
-        time.sleep(2)
+        submit = ScrapeTools.safeFind(driver.find_element_by_id, 'bouncer_modal_submit')
+        ScrapeTools.safeClick(submit, driver)
 
-        nameElements = driver.find_elements_by_class_name('product-single__title')
-        nameElements = nameElements[0:-1]
+        nameElements = ScrapeTools.safeFind(driver.find_elements_by_class_name, 'product-single__title')
+        nameElements = nameElements[0:-1] # don't care about giftcard option at the end
 
         names = []
 
         for nameElement in nameElements:
             names.append(nameElement.text.strip())
 
-        tagElements = driver.find_elements_by_class_name('shopify-section.index-section.index-section--featured-product')
+        tagElements = ScrapeTools.safeFind(driver.find_elements_by_class_name, 'shopify-section.index-section.index-section--featured-product')
         tags = []
         for tagElement in tagElements:
             tags.append(tagElement.get_attribute('id')[16:])
 
         priceElements = []
         for tag in tags:
-            priceElements.append(driver.find_element_by_id('ProductPrice-' + tag))
+            priceElements.append(ScrapeTools.safeFind(driver.find_element_by_id, 'ProductPrice-' + tag))
         priceElements = priceElements[0:-1]
 
         prices = []
@@ -43,7 +42,8 @@ class Block3():
 
         volumeElements = []
         for tag in tags:
-            volumeElements.append(Select(driver.find_element_by_id('SingleOptionSelector-' + tag + '-0')))
+            selector = ScrapeTools.safeFind(driver.find_element_by_id, 'SingleOptionSelector-' + tag + '-0')
+            volumeElements.append(Select(selector))
         volumeElements = volumeElements[0:-1]
 
         volumes = []
@@ -59,7 +59,7 @@ class Block3():
                 continue
             volumes.append(value)
 
-        percentageElements = driver.find_elements_by_class_name('product-single__description.rte')
+        percentageElements = ScrapeTools.safeFind(driver.find_elements_by_class_name, 'product-single__description.rte')
         percentageElements = percentageElements[0:-1]
 
         percentages = []

@@ -1,44 +1,47 @@
 from selenium import webdriver
 import time
+from tools import ScrapeTools
 
 class Heartwood():
 
     def scrape(self, driver):
 
         driver.get('https://heartwoodfarm.ca/collections/craft-cider')
-        time.sleep(4)
 
         try:
-            popup = driver.find_element_by_class_name('fancybox-item.fancybox-close.ss-icon')
-            popup.click()
-            time.sleep(2)
+            popup = ScrapeTools.safeFind(driver.find_element_by_class_name, 'fancybox-item.fancybox-close.ss-icon', 5)
+            ScrapeTools.safeClick(popup, driver)
         except:
             pass
 
         linkIndex = 0
 
-        links = driver.find_elements_by_partial_link_text('$')
+        links = ScrapeTools.safeFind(driver.find_elements_by_partial_link_text, '$')
+        now = time.time()
+        while len(links) == 0:
+            if now + 30 < time.time():
+                raise Exception('Could not find any products for Heartwood')
+            links = ScrapeTools.safeFind(driver.find_elements_by_partial_link_text, '$')
+
         names = []
         volumes = []
         prices = []
         percentages = []
 
         while linkIndex < len(links):
-            links = driver.find_elements_by_partial_link_text('$')
-            links[linkIndex].click()
+            links = ScrapeTools.safeFind(driver.find_elements_by_partial_link_text, '$')
+            ScrapeTools.safeClick(links[linkIndex], driver)
             linkIndex += 1
-            time.sleep(2)
 
-            name = None
+            name = ScrapeTools.safeFind(driver.find_element_by_class_name, 'product_name')
             price = None
             percent = None
 
-            name = driver.find_element_by_class_name('product_name')
             try:
                 price = driver.find_element_by_xpath('//*[@id="shopify-section-product-template"]/div/div/div/div[2]/div[2]/p[2]/span[2]/span[1]')
                 percent = driver.find_element_by_xpath('//*[@id="shopify-section-product-template"]/div/div/div/div[2]/div[2]/p[2]/span[2]/span[2]')
             except:
-                price = driver.find_element_by_xpath('//*[@id="shopify-section-product-template"]/div/div/div/div[2]/div[2]/p[2]/span[1]')
+                price = ScrapeTools.safeFind(driver.find_element_by_xpath, '//*[@id="shopify-section-product-template"]/div/div/div/div[2]/div[2]/p[2]/span[1]')
 
             text = price.text.strip()
             if percent is not None:
@@ -57,8 +60,7 @@ class Heartwood():
                 volumeIndex = text.find('ml:', volumeIndex + 3)
                 priceIndex = text.find('$', priceIndex + 1)
 
-            driver.execute_script("window.history.go(-1)")
-            time.sleep(2)
+            ScrapeTools.goBack(driver)
         
         return zip(names, prices, volumes, percentages)
 
